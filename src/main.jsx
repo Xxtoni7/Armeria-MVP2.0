@@ -131,6 +131,8 @@ function Icon({ name, size = 20 }) {
     user: <><circle cx="12" cy="8" r="3.3" /><path d="M5.5 20c.7-3.3 2.8-5 6.5-5s5.8 1.7 6.5 5" /></>,
     arrow: <><path d="M4 12h16" /><path d="m14 6 6 6-6 6" /></>,
     chevron: <path d="m6 9 6 6 6-6" />,
+    'chevron-left': <path d="m15 18-6-6 6-6" />,
+    'chevron-right': <path d="m9 18 6-6-6-6" />,
     menu: <><path d="M4 7h16M4 12h16M4 17h16" /></>,
     close: <><path d="m5 5 14 14M19 5 5 19" /></>,
     check: <path d="m5 12 4.5 4.5L19 7" />,
@@ -177,6 +179,24 @@ function PhotoCategoryTile({ category, onNavigate, variant = '' }) {
     <span className="photo-category-image-wrap photo-fill-edge variant-cover"><img className="photo-category-image" src={category.image} alt="" /><span className="photo-category-index">{String(homeCategoryPhotos.findIndex((item) => item.id === category.id) + 1).padStart(2, '0')}</span></span>
     <span className="photo-category-copy"><strong>{category.label}</strong><small>Explorar categoría</small></span><Icon name="arrow" size={16} />
   </button>
+}
+
+function MobileCategoryCarousel({ onNavigate }) {
+  const pageCount = Math.ceil(homeCategoryPhotos.length / 2)
+  const [page, setPage] = useState(0)
+  const visibleCategories = homeCategoryPhotos.slice(page * 2, page * 2 + 2)
+  const changePage = (direction) => setPage((current) => (current + direction + pageCount) % pageCount)
+
+  return <div className="mobile-category-carousel" aria-label="Categorías del catálogo">
+    <button className="category-carousel-arrow category-carousel-prev" onClick={() => changePage(-1)} aria-label="Ver categorías anteriores"><Icon name="chevron-left" size={22} /></button>
+    <div className="mobile-category-carousel-grid">
+      {visibleCategories.map((category) => <PhotoCategoryTile key={category.id} category={category} onNavigate={onNavigate} variant="photo-category-fit" />)}
+    </div>
+    <button className="category-carousel-arrow category-carousel-next" onClick={() => changePage(1)} aria-label="Ver más categorías"><Icon name="chevron-right" size={22} /></button>
+    <div className="category-carousel-dots" aria-label={`Página ${page + 1} de ${pageCount}`}>
+      {Array.from({ length: pageCount }, (_, index) => <button key={index} className={`category-carousel-dot ${index === page ? 'is-active' : ''}`} onClick={() => setPage(index)} aria-label={`Ver página ${index + 1}`} aria-current={index === page ? 'true' : undefined} />)}
+    </div>
+  </div>
 }
 
 function TopBar({ onNavigate }) {
@@ -235,7 +255,7 @@ function Home({ onNavigate, onOpenProduct, onAdd, search }) {
       </div>
 
     </section>
-    <section className="section container live-category-fit"><div className="section-heading"><div><p className="eyebrow">NAVEGÁ POR ÁREA</p><h2>Encontrá lo que buscás</h2></div><button className="text-button" onClick={() => onNavigate('/productos')}>Ver todo <Icon name="arrow" size={16} /></button></div><div className="photo-category-grid">{homeCategoryPhotos.map((category) => <PhotoCategoryTile key={category.id} category={category} onNavigate={onNavigate} variant="photo-category-fit" />)}</div></section>
+    <section className="section container live-category-fit"><div className="section-heading"><div><p className="eyebrow">NAVEGÁ POR ÁREA</p><h2>Encontrá lo que buscás</h2></div><button className="text-button" onClick={() => onNavigate('/productos')}>Ver todo <Icon name="arrow" size={16} /></button></div><div className="photo-category-grid">{homeCategoryPhotos.map((category) => <PhotoCategoryTile key={category.id} category={category} onNavigate={onNavigate} variant="photo-category-fit" />)}</div><MobileCategoryCarousel onNavigate={onNavigate} /></section>
     <section className="section feature-strip"><div className="container feature-strip-inner"><div><p className="eyebrow">UN PROCESO MÁS SIMPLE</p><h2>Comprá con el acompañamiento que esperás.</h2></div><div className="feature-points"><div><span className="feature-index">01</span><strong>Catálogo claro</strong><p>Precios visibles, fichas simples y productos de demostración identificados.</p></div><div><span className="feature-index">02</span><strong>Gestoría documental</strong><p>Te explicamos requisitos y próximos pasos sin letra chica.</p></div><div><span className="feature-index">03</span><strong>Seguimiento EDL</strong><p>Después de la compra, coordinamos la verificación de tus papeles.</p></div></div></div></section>
     <section className="section container product-rail"><div className="section-heading"><div><p className="eyebrow">SELECCIÓN EDL</p><h2>Los más consultados</h2></div><button className="text-button" onClick={() => onNavigate('/productos')}>Ver catálogo <Icon name="arrow" size={16} /></button></div><div className="product-grid product-grid-four">{featured.map((product) => <ProductCard key={product.id} product={product} onOpen={onOpenProduct} onAdd={onAdd} />)}</div></section>
     <section className="legal-callout container"><div className="legal-callout-mark"><Icon name="shield" size={43} /></div><div className="legal-callout-copy"><p className="eyebrow">GESTORÍA DOCUMENTAL EDL</p><h2>Tu compra también necesita orientación.</h2><p>Si todavía no contás con la documentación, podemos ayudarte a ordenar el trámite. La estimación de hasta 72 h es orientativa y depende de la recepción y validación de la documentación.</p><button className="button button-light" onClick={() => onNavigate('/legal')}>Ver cómo trabajamos <Icon name="arrow" size={18} /></button></div><div className="legal-callout-list"><span><Icon name="check" size={17} /> Requisitos explicados</span><span><Icon name="check" size={17} /> Seguimiento personalizado</span><span><Icon name="check" size={17} /> Confirmación antes de avanzar</span></div></section>
